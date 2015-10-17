@@ -1,0 +1,201 @@
+<div class="controller" ng-controller="stopsPageController">
+  <div class="col-sm-5 col-md-5 list">
+    <div class="results-actions">
+      <div class="sorting">
+        <button type="button" class="btn" ng-class="{active:sorting=='+stop_name'}" ng-click="sorting='+stop_name'">
+          <span class="glyphicon glyphicon-sort-by-alphabet"></span> Asc
+        </button>
+
+        <button type="button" class="btn" ng-class="{active:sorting=='-stop_name'}"  ng-click="sorting='-stop_name'">
+          <span class="glyphicon glyphicon-sort-by-alphabet-alt"></span> Dsc
+        </button>
+
+        <button type="button" class="btn" ng-click="resultMapVisible = !resultMapVisible; resultMapToggle()">
+          <span class="glyphicon glyphicon-map-marker"></span> Map
+        </button>
+
+      </div>
+      <div class="item-buttons">
+
+        <button type="button" class="btn" ng-click="removeEntries()" ng-if="checkedItems.length > 0">
+          <span class="glyphicon glyphicon-trash"></span> Remove
+        </button>
+
+        <button type="button" class="btn" ng-click="newEntry()">
+          <span class="glyphicon glyphicon-plus"></span> Add
+        </button>
+
+      </div>
+      <div id="results-map" ng-if="resultMapVisible"></div>
+    </div>
+    <div class="search">
+      <span class="glyphicon glyphicon-search"></span><input ng-model="searchText.stop_name" placeholder="Search"><span ng-if="searchText.stop_name" ng-click="searchText.stop_name = ''" class="glyphicon glyphicon-remove"></span>
+    </div> 
+
+    <ul class="item-list" when-scrolled='loadMore()'>
+      <li ng-repeat="stop in stops | filter:searchText | orderBy:sorting | limitTo:limit"
+          ng-class="{'active': stop == active_item}"> 
+      <div class="controls">
+        <input type="checkbox" id="{{ stop.stop_id }}" class="large" ng-model="selected" ng-init="" ng-change="itemChecked(selected, stop)" /> 
+      </div>
+      <div class="labels" ng-click="listItemPressed(stop)">
+        <div class="itemName">{{stop.stop_name}}</div>
+        <div class="itemDescription">{{stop.stop_desc}}</div>
+      </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-sm-7 col-md-7 item-panel" ng-class="{'idle': active_item == null}">
+    <div ng-if="active_item !== 'undefined' && active_item.stop_id != null">
+      <div class="actions">
+        <span class="glyphicon glyphicon-pencil tip" id="editBtn" ng-if="editing == false" ng-click="editingStart()" data-toggle="tooltip" data-placement="left" title="Edit this this item"></span>
+
+        <span class="glyphicon glyphicon-trash tip" id="removeBtn" ng-if="editing == false" ng-click="removeItem()" data-toggle="tooltip" data-placement="left" title="Remove this item"></span>
+
+        <span class="glyphicon glyphicon-remove tip" id="removeBtn" ng-if="editing == true" ng-click="editingStop()" data-toggle="tooltip" data-placement="left" title="Discard changes"></span>
+
+        <span class="glyphicon glyphicon-ok tip active" id="saveBtn" ng-if="editing == true" ng-click="saveItem()" data-toggle="tooltip" data-placement="left" title="Save item"></span>
+      </div>
+      <input type="text" class="title" ng-disabled="editing == false" ng-model="active_item.stop_name" value="stop_name" />
+      <div class="item-details" ng-if="active_item != null">
+        <div class="item-group">
+          <div class="title">Required fields</div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="<p>The <strong>stop_id</strong> field contains an ID that uniquely identifies a stop or station. Multiple routes may use the same stop. The <strong>stop_id</strong> is dataset unique.</p>">
+                Stop ID:
+            </div>
+            <input type="text" class="value" ng-required disabled ng-model="active_item.stop_id" value="stop_id" />
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The stop_lat field contains the latitude of a stop or station. The field value must be a valid WGS 84 latitude.">
+                Latitude:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.stop_lat" value="stop_lat"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The stop_lon field contains the longitude of a stop or station. The field value must be a valid WGS 84 longitude value from -180 to 180.">
+                Longitude:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.stop_lon" value="stop_lon"  />
+          </div>
+        </div>
+        <div class="item-group">
+          <div class="title">Optional fields</div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The <strong>stop_code</strong> field contains short text or a number that uniquely identifies the stop for passengers.  Stop codes are often used in phone-based transit information systems or printed on stop signage to make it easier for riders to get a stop schedule or real-time arrival information for a particular stop.</p><p>The stop_code field should only be used for stop codes that are displayed to passengers.  For internal codes, use <strong>stop_id</strong>. This field should be left blank for stops without a code.">
+                Stop code:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.stop_code" value="stop_code"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The stop_desc field contains a description of a stop. Please provide useful, quality information. Do not simply duplicate the name of the stop.">
+                Description:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.stop_desc" value="stop_desc" />
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The zone_id field defines the fare zone for a stop ID. Zone IDs are required if you want to provide fare information using fare_rules.txt. If this stop ID represents a station, the zone ID is ignored.">
+                Zone ID:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.zone_id" value="zone_id"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The stop_url field contains the URL of a web page about a particular stop. This should be different from the agency_url and the route_url fields.
+                The value must be a fully qualified URL that includes http:// or https://, and any special characters in the URL must be correctly escaped. See http://www.w3.org/Addressing/URL/4_URI_Recommentations.html for a description of how to create fully qualified URL values.">
+                Stop URL:
+            </div>
+            <input type="text" class="value inputLink" ng-disabled="editing == false" ng-model="active_item.stop_url" value="stop_url"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The <b>stop_id field</b> contains an ID that uniquely identifies a stop or station. Multiple routes may use the same stop. The stop_id is dataset unique.">
+                Location type:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_item.location_type">
+              <option value="0">Stop</option>
+              <option value="1">Station</option> 
+            </select>
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="For stops that are physically located inside stations,
+                              the <strong>parent_station</strong> field identifies the station
+                              associated with the stop. To use this field, stops.txt must also
+                              contain a row where this stop ID is assigned location type=1.
+                            <table border='1' cellpadding='1' cellspacing='1'>
+                              <tbody><tr align='left'>
+                                <th scope='col'>This stop ID represents... </th>
+                                <th scope='col>This entry's location type...</th>
+                                <th scope='col>This entry's parent_station field contains...</th>
+                              </tr>
+                              <tr>
+                                <td scope='row'>A stop located inside a  station.</td>
+                                <td>0 or blank </td>
+                                <td>The stop ID of the station where this stop is located. The stop
+                                  referenced by parent_station must have location_type=1.</td>
+                              </tr>
+                              <tr>
+                                <td scope='row'>A stop located outside a  station.</td>
+                                <td>0 or blank </td>
+                                <td>A blank value. The parent_station field doesn't apply to this
+                                  stop. </td>
+                              </tr>
+                              <tr>
+                                <td scope='row'>A station.</td>
+                                <td>1</td>
+                                <td>A blank value. Stations can't contain other stations.</td>
+                              </tr>
+                            </tbody></table>">Parent station:
+            </div>
+            <select class="value" ng-init="active_item.parent_station = 0" ng-disabled="editing == false || active_item.location_type != 0" ng-model="active_item.parent_station" ng-options="stop.stop_id as stop.stop_name for stop in stops | filter:{location_type:'1'}">
+              <option value="">-- Choose Parent Stop --</option>
+            </select>
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The <b>stop_id field</b> contains an ID that uniquely identifies a stop or station. Multiple routes may use the same stop. The stop_id is dataset unique.">
+            Stop timezone:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_item.stop_timezone" ng-options="timezone.value as timezone.value for timezone in timezones" >
+              <option value="">-- Choose Timezone --</option>
+            </select>
+          </div>
+          <div class="item">
+            <div class="key pop"
+                data-toggle="popover"
+                data-content="The <b>stop_id field</b> contains an ID that uniquely identifies a stop or station. Multiple routes may use the same stop. The stop_id is dataset unique.">
+                Wheelchair:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_item.wheelchair_boarding">
+              <option value="0">No accessibility information</option>
+              <option value="1">At least some vehicles at this stop can board wheelchairs</option>
+              <option value="2">Wheelchair boarding is not possible at this stop</option>
+            </select>
+          </div>
+        </div>
+        <div class="item-group">
+          <div class="title">Stop location</div>
+          <div id="map-canvas" class="item map"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

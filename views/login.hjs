@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html ng-app="gtfsApp">
+  <head>
+    <title ng-bind="page_title + ' | <% title %>'"><% title %></title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="/stylesheets/bootstrap.css" />
+    <link rel="stylesheet" href="/stylesheets/bootstrap-theme.css" />
+    <link rel="stylesheet" href="/stylesheets/dashboard.css" />
+    <link rel='stylesheet' href='/stylesheets/login-styles.css' />
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,500,700' rel='stylesheet' type='text/css'/>
+  </head>
+  <body ng-controller="LoginController" class="login-page">
+    <div class="wrapper">
+      <form class="form-signin" action="/login" method="post">
+        <h2 class="form-signin-heading text-center">OpenTripManager</h2>
+        <div class="error-msg">
+          <% message %>
+        </div>
+        <input type="text" class="form-control" name="username" placeholder="Username" required="" autofocus="" />
+        <input type="password" class="form-control" name="password" placeholder="Password" required=""/>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+      </form>
+    </div>
+  </body>
+  <!-- bower:js -->
+  <script src="../bower_components/es5-shim/es5-shim.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../bower_components/angular/angular.js"></script>
+  <script src="../bower_components/angular-route/angular-route.js"></script>
+  <script src="../bower_components/angular-resource/angular-resource.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="../bower_components/angular-file-upload/angular-file-upload.js"></script>
+  <script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+  <script src="../bower_components/angular-ui-utils/ui-utils.js"></script>
+  <script src="../bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
+  <script src="../bower_components/jquery-ui/jquery-ui.js"></script>
+  <script src="../bower_components/moment/moment.js"></script>
+  <!-- endbower -->
+  <script src="/angular/app.js"></script>
+  <script src="/angular/services.js"></script>
+  <script src="/angular/models.js"></script>
+  <script src="/angular/dashboard-page-module.js"></script>
+  <script src="/angular/import-page-module.js"></script>
+  <script src="/angular/export-page-module.js"></script>
+  <script src="/angular/stops-page-module.js"></script>
+  <script src="/angular/routes-page-module.js"></script>
+  <script src="/angular/calendars-page-module.js"></script>
+  <script src="/angular/trips-page-module.js"></script>
+  <script src="/angular/agencies-page-module.js"></script>
+  <script src="/angular/services.js"></script>
+  <script src="/angular/main-module.js"></script>
+  <script src="/angular/login-page-module.js"></script>
+  <script src="/angular/utils.js"></script>
+  
+  <script src="/javascripts/vendor/naturalSortVersion.min.js"></script>
+  <script src="/javascripts/vendor/sortable.js"></script>
+  
+</html>

@@ -1,0 +1,43 @@
+{
+  "name": "GTFS-Manager",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "postinstall": "bower install"
+  },
+  "dependencies": {
+    "adm-zip": "^0.4.4",
+    "async": "^0.7.0",
+    "body-parser": "~1.0.2",
+    "cookie-parser": "~1.0.1",
+    "csv": "^0.3.7",
+    "debug": "~0.7.4",
+    "express": "~4.2.0",
+    "formidable": "^1.0.14",
+    "fs-extra": "^0.8.1",
+    "grunt": "~0.4.1",
+    "hjs": "0.0.6",
+    "less-middleware": "0.1.15",
+    "matchdep": "^0.1.2",
+    "mongodb": "^1.4.2",
+    "morgan": "~1.0.0",
+    "multipart": "^0.1.5",
+    "nodemon": "^1.2.1",
+    "path": "^0.4.9",
+    "static-favicon": "~1.0.0",
+    "unzip": "^0.1.9",
+    "passport-local": "~1.0.0",
+    "passport": "~0.2.1",
+    "bower": "^1.3.12",
+    "express-session": "^1.10.3",
+    "bcrypt-nodejs": "0.0.3",
+    "connect-flash": "^0.1.1",
+    "csv-stringify": "0.0.6",
+    "moment": "^2.10.2"
+  },
+  "devDependencies": {
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-wiredep": "^2.0.0"
+  }
+}

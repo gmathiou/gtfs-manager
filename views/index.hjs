@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html ng-app="gtfsApp">
+  <head>
+    <title ng-bind="page_title + ' | <% title %>'"><% title %></title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap-theme.css" />
+    <link rel="stylesheet" href="/stylesheets/dashboard.css" />
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/colorpicker.css' />
+    <link rel='stylesheet' href="/stylesheets/bootstrap-timepicker.css" />
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,500,700' rel='stylesheet' type='text/css'/>
+  </head>
+  <body ng-controller="MainController">
+    <div class="container-fluid main-container">
+      <div class="row main-row">
+        <div class="col-md-2 sidebar">
+          <div id="logo"><a href="#"><strong>GTFS</strong>Manager</a></div>
+          <nav>
+            <ul class="nav nav-sidebar" ng-controller="NavCtrl">
+              <li ng-repeat="item in sideMenuitems" ng-class="{active: isActive(item)}"><a href="#{{item.path}}">{{item.title}}</a></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="col-md-10 main">
+          <div class="top-bar">
+            <h1 class="page-header">{{ page_title }}</h1>
+            <div class="spinner" ng-show="loading">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
+            <div class="secondary-menu" ng-controller="NavCtrl">
+              <a href="{{ item.path }}" ng-repeat="item in mainMenuitems" ng-class="{active: isActive(item)}" class="" ng-click="">
+                <span class="glyphicon glyphicon-{{item.icon}} tip" tooltip="{{ item.title }}"></span>
+              </a>
+            </div>
+            <div class="main-search">
+              <input type="text" id="main-search" /><span class="glyphicon glyphicon-search"></span>
+            </div>
+          </div>
+          <div ng-view class=view-frame></div>
+        </section>
+      </div>
+    </div>
+  </body>
+
+  <!-- bower:js -->
+  <script src="../bower_components/es5-shim/es5-shim.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../bower_components/angular/angular.js"></script>
+  <script src="../bower_components/angular-route/angular-route.js"></script>
+  <script src="../bower_components/angular-resource/angular-resource.js"></script>
+  <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="../bower_components/angular-file-upload/angular-file-upload.js"></script>
+  <script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+  <script src="../bower_components/angular-ui-utils/ui-utils.js"></script>
+  <script src="../bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
+  <script src="../bower_components/jquery-ui/jquery-ui.js"></script>
+  <script src="../bower_components/moment/moment.js"></script>
+  <!-- endbower -->
+  
+  <script src="/angular/app.js"></script>
+  <script src="/angular/services.js"></script>
+  <script src="/angular/models.js"></script>
+  <script src="/angular/dashboard-page-module.js"></script>
+  <script src="/angular/import-page-module.js"></script>
+  <script src="/angular/export-page-module.js"></script>
+  <script src="/angular/stops-page-module.js"></script>
+  <script src="/angular/routes-page-module.js"></script>
+  <script src="/angular/trips-page-module.js"></script>
+  <script src="/angular/agencies-page-module.js"></script>
+  <script src="/angular/calendars-page-module.js"></script>
+  <script src="/angular/services.js"></script>
+  <script src="/angular/main-module.js"></script>
+  <script src="/angular/login-page-module.js"></script>
+  <script src="/angular/utils.js"></script>
+  
+  <script src="/javascripts/vendor/naturalSortVersion.min.js"></script>
+  <script src="/javascripts/vendor/gmap3.min.js"></script>
+  <script src="/javascripts/main.js"></script>
+  <script src="http://maps.google.com/maps/api/js?sensor=false&language=en"></script>
+  <script src="/javascripts/vendor/sortable.js"></script>
+</html>

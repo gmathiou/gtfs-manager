@@ -1,0 +1,89 @@
+<div class="controller" ng-controller="calendarsPageController">
+  <div class="col-md-5 list">
+    <div class="results-actions">
+      <div class="item-buttons">
+        <button type="button" class="btn" ng-click="removeEntries()" ng-if="checkedItems.length > 0">
+        <span class="glyphicon glyphicon-trash"></span> Remove
+        </button>
+        <button type="button" class="btn" ng-click="newEntry()">
+        <span class="glyphicon glyphicon-plus"></span> Add
+        </button>
+      </div>
+    </div>
+    
+    <ul class="item-list">
+      <li ng-repeat="calendar in calendars"
+        ng-class="{'active': calendar == active_item}">
+        <div class="labels" ng-click="itemPressed(calendar)">
+          <div class="itemName">{{calendar.service_id}}</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-md-7 item-panel"  ng-class="{'idle': active_item == null}">
+    <div ng-if="active_item !== 'undefined' && active_item.service_id != null">
+      
+      <div class="actions">
+        <span class="glyphicon glyphicon-trash tip" id="removeBtn" ng-click="removeItem()" data-toggle="tooltip" data-placement="left" title="Remove this item"></span>
+        <span class="glyphicon glyphicon-ok tip active" id="saveBtn" ng-click="saveItem()" data-toggle="tooltip" data-placement="left" title="Save item"></span>
+      </div>
+      <div class="item-details" ng-if="active_item != null">
+        <div class="item-group">
+          <div class="item">
+            <input type="checkbox" id="monday" ng-model="active_item.monday" />
+            <label for="monday">Monday</label>
+          </div>
+          <div class="item">
+            <input type="checkbox" id="tuesday" ng-model="active_item.tuesday" />
+            <label for="tuesday">Tuesday</label>
+          </div>
+          <div class="item">
+            <input type="checkbox" id="wednesday" ng-model="active_item.wednesday" />
+            <label for="wednesday">Wednesday</label>
+          </div>
+          <div class="item">
+            <input type="checkbox" id="thursday" ng-model="active_item.thursday" />
+            <label for="thursday">Thursday</label>
+          </div>
+          <div class="item">
+            <input type="checkbox" id="friday" ng-model="active_item.friday" />
+            <label for="friday">Friday</label>
+          </div>
+          <div class="item">
+            <input type="checkbox" id="saturday" ng-model="active_item.saturday" />
+            <label for="saturday">Saturday</label>
+          </div>
+          <div class="item">
+            <input type="checkbox" id="sunday" ng-model="active_item.sunday" />
+            <label for="sunday">Sunday</label>
+          </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label>Start date</label>
+                <p class="input-group">
+                  <input type="text" id="start_date" class="form-control datepicker" datepicker-popup="yyyyMMdd" ng-model="start_date" is-open="opened[1]" datepicker-options="dateOptions" close-text="Close" />
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="open($event, 1)"><i class="glyphicon glyphicon-calendar"></i></button>
+                  </span>
+                </p>
+              </div>
+            </div>
+          
+          <div class="row">
+              <div class="col-md-6">
+                  <label>End date</label>
+                <p class="input-group">
+                  <input type="text" id="end_date" class="form-control datepicker" datepicker-popup="yyyyMMdd" ng-model="end_date" is-open="opened[2]" datepicker-options="dateOptions" close-text="Close" />
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="open($event, 2)"><i class="glyphicon glyphicon-calendar"></i></button>
+                  </span>
+                </p>
+              </div>
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

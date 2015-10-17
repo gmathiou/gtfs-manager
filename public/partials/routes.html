@@ -1,0 +1,208 @@
+<div class="controller" ng-controller="routesPageController">
+  <div class="col-sm-5 col-md-5 list"> 
+    <div class="results-actions">
+      <div class="sorting">
+        <button type="button" class="btn" ng-class="{active:sorting=='+route_long_name'}" ng-click="sorting='+route_long_name'">
+        <span class="glyphicon glyphicon-sort-by-alphabet"></span> Asc
+        </button>
+        <button type="button" class="btn" ng-class="{active:sorting=='-route_long_name'}"  ng-click="sorting='-route_long_name'">
+        <span class="glyphicon glyphicon-sort-by-alphabet-alt"></span> Dsc
+        </button>
+      </div>
+      <div class="item-buttons">
+        <button type="button" class="btn" ng-click="removeEntries()" ng-if="checkedItems.length > 0">
+        <span class="glyphicon glyphicon-trash"></span> Remove
+        </button>
+        <button type="button" class="btn" ng-click="newEntry()">
+        <span class="glyphicon glyphicon-plus"></span> Add
+        </button>
+      </div>
+    </div>
+    <div class="search">
+      <span class="glyphicon glyphicon-search"></span><input ng-model="searchText.route_long_name" placeholder="Search"><span ng-if="searchText.route_long_name" ng-click="searchText.route_long_name = ''" class="glyphicon glyphicon-remove"></span>
+    </div>
+    <ul class="item-list" when-scrolled='loadMore()'>
+      <li ng-repeat="route in routes | filter:searchText | orderBy:sorting | limitTo:limit" ng-class="{'active': route == active_item}" >
+        <div class="controls">
+          <input type="checkbox" id="{{ route.route_id }}" class="large" ng-model="selected" ng-init="" ng-change="itemChecked(selected, route)" />
+        </div>
+        <div class="labels" ng-click="listItemPressed(route)">
+          <div class="itemName">{{route.route_long_name}}</div>
+          <div class="itemDescription">{{route.route_short_name}}</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-7 col-md-7 item-panel"  ng-class="{'idle': active_item == null}">
+    <div ng-if="active_item !== 'undefined' && active_item.route_id != null">
+      <div class="actions">
+        <span class="glyphicon glyphicon-pencil tip" id="editBtn" ng-if="editing == false" ng-click="editingStart()" data-toggle="tooltip" data-placement="left" title="Edit this this item"></span>
+        <span class="glyphicon glyphicon-trash tip" id="removeBtn" ng-if="editing == false" ng-click="removeItem()" data-toggle="tooltip" data-placement="left" title="Remove this item"></span>
+        <span class="glyphicon glyphicon-remove tip" id="cancelEditBtn" ng-if="editing == true" ng-click="editingStop()" data-toggle="tooltip" data-placement="left" title="Discard changes"></span>
+        <span class="glyphicon glyphicon-ok tip active" id="saveBtn" ng-if="editing == true" ng-click="saveItem()" data-toggle="tooltip" data-placement="left" title="Save item"></span>
+      </div>
+      <input type="text" class="title" ng-disabled="editing == false" ng-model="active_item.route_long_name" value="route_long_name" />
+      <div class="item-details" ng-if="active_item != null">
+        <div class="item-group">
+          <div class="title">Required fields</div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>route_id</strong> field contains an ID that uniquely
+              identifies a route. The <strong>route_id</strong> is dataset
+              unique.">
+              Route ID:
+            </div>
+            <input type="text" class="value" ng-required disabled ng-model="active_item.route_id" value="route_id" />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>route_short_name</strong> contains the short name of a
+              route. This will often be a short, abstract identifier like
+              '32', '100X', or 'Green' that riders
+              use to identify a route, but which doesn't give any indication of
+              what places the route serves. At least one
+              of <strong>route_short_name</strong>
+              or <strong>route_long_name</strong> must be specified, or potentially
+              both if appropriate. If the route does not have a short name, please
+              specify a <strong>route_long_name</strong> and use an empty string as
+              the value for this field.<p>See a Google Maps screenshot highlighting
+              the <strong><a href='/transit/gtfs/examples/display-to-users#RouteShortName'>route_short_name</a></strong>.</p>">
+              Short name:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.route_short_name" value="route_short_name"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>route_type</strong> field describes the type of
+              transportation used on a route. Valid values for this field are:
+              <ul>
+                <li><strong>0</strong> - Tram, Streetcar, Light rail. Any light rail
+                or street level system within a metropolitan area. </li>
+                <li><strong>1</strong> - Subway, Metro. Any underground rail system
+                within a metropolitan area. </li>
+                <li><strong>2</strong> - Rail. Used for intercity or long-distance
+                travel. </li>
+                <li><strong>3</strong> - Bus. Used for short- and long-distance bus
+                routes. </li>
+                <li><strong>4</strong> - Ferry. Used for short- and long-distance
+                boat service. </li>
+                <li><strong>5</strong> - Cable car. Used for street-level cable cars
+                where the cable runs beneath the car. </li>
+                <li><strong>6</strong> - Gondola, Suspended cable car. Typically used
+                  for aerial cable cars where the car is suspended from the
+                cable. </li>
+                <li><strong>7</strong> - Funicular. Any rail system designed for
+                steep inclines. </li>
+              </ul>
+              <p>See a Google Maps screenshot highlighting
+              the <strong><a href='/transit/gtfs/examples/display-to-users#RouteType'>route_type</a></strong>.</p>
+            </td>">
+            Type:
+          </div>
+          <select class="value" ng-disabled="editing == false" ng-model="active_item.route_type" ng-options="type.value as type.label for type in route_types">
+          </select>
+        </div>
+      </div>
+      <div class="item-group">
+        <div class="title">Optional fields</div>
+        <div class="item">
+          <div class="key pop"
+            data-toggle="popover"
+            data-content="The <strong>agency_id</strong> field defines an agency for the
+            specified route. This value is referenced from
+            the <a href='#agency_fields'>agency.txt</a> file. Use this field when
+            you are providing data for routes from more than one agency.">
+            Agency:
+          </div>
+          <select class="value" ng-disabled="editing == false" ng-model="active_item.agency_id" ng-options="agency.agency_id as agency.agency_name for agency in agencies">
+          </select> 
+        </div>
+        <div class="item">
+          <div class="key pop"
+            data-toggle="popover"
+            data-content="The <strong>route_desc</strong> field contains a description of a
+            route. Please provide useful, quality information. Do not simply
+            duplicate the name of the route. For example, 'A trains operate
+            between Inwood-207 St, Manhattan and Far Rockaway-Mott Avenue, Queens
+            at all times. Also from about 6AM until about midnight, additional A
+            trains operate between Inwood-207 St and Lefferts Boulevard (trains
+            typically alternate between Lefferts Blvd and Far
+            Rockaway).'">
+            Description:
+          </div>
+          <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.route_desc" value="route_desc" />
+        </div>
+        <div class="item">
+          <div class="key pop"
+            data-toggle="popover"
+            data-content="The <strong>route_url</strong> field contains the URL of a web page
+            about that particular route. This should be different from
+            the <strong>agency_url</strong>.<br>  <br> The value must be a
+            fully qualified URL that includes <strong>http://</strong>
+            or <strong>https://</strong>, and any special characters in the URL
+            must be correctly
+            escaped. See <a href='http://www.w3.org/Addressing/URL/4_URI_Recommentations.html'>http://www.w3.org/Addressing/URL/4_URI_Recommentations.html</a>
+            for a description of how to create fully qualified URL values.">
+            Route URL:
+          </div>
+          <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.route_url" value="route_url"  />
+        </div>
+        <div class="item">
+          <div class="key pop"
+            data-toggle="popover"
+            data-content="In systems that have colors assigned to routes,
+            the <strong>route_color</strong> field defines a color that
+            corresponds to a route. The color must be provided as a six-character
+            hexadecimal number, for example, 00FFFF. If no color is specified,
+            the default route color is white (FFFFFF).<p>The color difference between <strong>route_color</strong>
+            and <strong>route_text_color</strong> should provide sufficient
+            contrast when viewed on a black and white
+            screen. The <a href='http://www.w3.org/TR/AERT#color-contrast'>W3C
+            Techniques for Accessibility Evaluation And Repair Tools document</a>
+            offers a useful algorithm for evaluating color contrast. There are
+            also helpful online tools for choosing contrasting colors, including
+            the <a href='http://snook.ca/technical/colour_contrast/colour.html'>snook.ca
+            Color Contrast Check application</a>.">
+            Line color:
+          </div>
+          <input type="text" colorpicker class="value" ng-disabled="editing == false" ng-model="active_item.route_color" value="route_color" format="route_color" style="background:{{active_item.route_color || 'fff'}}; color:{{active_item.route_text_color || '000'}}" />
+        </div>
+        <div class="item">
+          <div class="key pop"
+            data-toggle="popover"
+            data-content="The <strong>route_text_color</strong> field can be used to specify a
+            legible color to use for text drawn against a background
+            of <strong>route_color</strong>. The color must be provided as a
+            six-character hexadecimal number, for example, FFD700. If no color is
+            specified, the default text color is black (000000).<p>The color difference between <strong>route_color</strong>
+            and <strong>route_text_color</strong> should provide sufficient
+            contrast when viewed on a black and white screen.">
+            Text color:
+          </div>
+          <input type="text" colorpicker class="value" ng-disabled="editing == false" ng-model="active_item.route_text_color" value="route_text_color" style="background:{{active_item.route_color || 'fff'}}; color:{{active_item.route_text_color || '000'}}" />
+        </div>
+      </div>
+      <!-- Trips Creation -->
+<!--       <div class="jumbotron">
+        <h2>Create multiple trips for: {{active_item.route_long_name}}</h2>
+        <p><i>{{ (trips | filter: {route_id : active_item.route_id} : true).length }} Trips already exist.</i></p>
+        <p><input ng-model="newItem.tripsToBeCreatedNumber" type="text" placeholder="Number of trips to be created" /></p>
+        <p><input ng-model="newItem.tripsToBeCreatedDirection" type="text" placeholder="Direction name" /></p>
+        
+        <p>
+        <select class="value" ng-init="newItem.direction_id = 0" ng-model="newItem.direction_id">
+          <option value="0">Outbound</option>
+          <option value="1">Inbound</option>
+        </select>
+        </p>
+        <p>
+        <a class="btn btn-alt" ng-click="createBatchTrips(newItem.tripsToBeCreatedNumber, newItem.tripsToBeCreatedDirection, newItem.direction_id)" role="button">Create {{ newItem.tripsToBeCreatedNumber  || 0 }} trips</a>
+        </p>
+      </div> -->
+    </div>
+  </div>
+</div>
+</div>

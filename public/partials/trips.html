@@ -1,0 +1,458 @@
+<div class="controller" ng-controller="tripsPageController">
+  <div class="col-sm-5 col-md-5 list">
+    <div class="results-actions">
+      <div class="sorting">
+        <button type="button" class="btn" ng-class="{active:sorting=='+route_long_name'}" ng-click="sorting='+route_long_name'">
+        <span class="glyphicon glyphicon-sort-by-alphabet"></span> Asc
+        </button>
+        <button type="button" class="btn" ng-class="{active:sorting=='-route_long_name'}"  ng-click="sorting='-route_long_name'">
+        <span class="glyphicon glyphicon-sort-by-alphabet-alt"></span> Dsc
+        </button>
+      </div>
+      <div class="item-buttons">
+        <button type="button" class="btn" ng-click="removeRouteEntries()" ng-if="checkedRouteItems.length > 0">
+        <span class="glyphicon glyphicon-trash"></span> Routes
+        </button>
+        <button type="button" class="btn" ng-click="removeTripEntries()" ng-if="checkedTripItems.length > 0">
+        <span class="glyphicon glyphicon-trash"></span> Trips
+        </button>
+        
+        <button ng-if="active_item != null" type="button" class="btn" ng-click="newTrip()">
+        <span class="glyphicon glyphicon-plus"></span> Trip
+        </button>
+      </div>
+    </div>
+    <div class="search">
+      <span class="glyphicon glyphicon-search"></span><input ng-model="searchText.route_long_name" placeholder="Search"><span ng-if="searchText.route_long_name" ng-click="searchText.route_long_name = ''" class="glyphicon glyphicon-remove"></span>
+    </div>
+    <!-- MAIN LIST - ROUTES -->
+    <ul class="item-list" when-scrolled='loadMore()'>
+      <li ng-repeat="route in routes | filter:searchText | orderBy:sorting | limitTo:limit"
+        ng-class="{'active': route == active_item}">
+        <div class="controls">
+          <input type="checkbox" id="{{ route.route_id }}" class="large" ng-model="route.selected" ng-init="" ng-change="routeItemChecked(route.selected, route)" />
+        </div>
+        <div
+          class="labels"
+          ng-click="routeItemPressed(route)">
+          <div class="itemName">{{route.route_long_name}}
+            <!-- <span class="badge pull-right">{{ (trips | filter: {route_id : route.route_id} : true).length }} trips</span> -->
+          </div>
+          <div class="itemDescription">{{ route.route_short_name }}</div>
+        </div>
+        <ul class="sublist" ng-if="active_item == route && show_trips == true">
+          <li
+            ng-repeat="trip in tripsForRoutes | limitTo:limitTrips"
+            ng-class="{'active': trip == active_trip_item}">
+            <div class="controls">
+              <input type="checkbox" id="{{ trip.trip_id }}" class="" ng-model="selected" ng-init="" ng-change="tripItemChecked(selected, trip)" />
+            </div>
+            <div class="labels" ng-click="activateTrip(trip)">
+              {{trip.trip_short_name}}
+            </div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-7 col-md-7 item-panel trips"  ng-class="{'idle': active_item == null}">
+    <div ng-if="active_item !== 'undefined' && active_item.route_id != null">
+      
+      <!-- Route item selected -->
+      <div ng-show="active_item != null && active_trip_item == null" class="trip_detail">
+        <!-- ROUTE -->
+        <div ng-if="active_item !== 'undefined' && active_item.route_id != null">
+          <input type="text" class="title" ng-disabled="editing == false" ng-model="active_item.route_long_name" value="route_long_name" />
+          <div class="item-details" ng-if="active_item != null">
+            <div class="item-group">
+              <div class="title">Required fields</div>
+              <div class="item">
+                <div class="key pop"
+                  data-toggle="popover"
+                  data-content="The <strong>route_id</strong> field contains an ID that uniquely
+                  identifies a route. The <strong>route_id</strong> is dataset
+                  unique.">
+                  Route ID:
+                </div>
+                <input type="text" class="value" ng-required disabled ng-model="active_item.route_id" value="route_id" />
+              </div>
+              <div class="item">
+                <div class="key pop"
+                  data-toggle="popover"
+                  data-content="The <strong>route_short_name</strong> contains the short name of a
+                  route. This will often be a short, abstract identifier like
+                  '32', '100X', or 'Green' that riders
+                  use to identify a route, but which doesn't give any indication of
+                  what places the route serves. At least one
+                  of <strong>route_short_name</strong>
+                  or <strong>route_long_name</strong> must be specified, or potentially
+                  both if appropriate. If the route does not have a short name, please
+                  specify a <strong>route_long_name</strong> and use an empty string as
+                  the value for this field.<p>See a Google Maps screenshot highlighting
+                  the <strong><a href='/transit/gtfs/examples/display-to-users#RouteShortName'>route_short_name</a></strong>.</p>">
+                  Short name:
+                </div>
+                <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.route_short_name" value="route_short_name"  />
+              </div>
+              <div class="item">
+                <div class="key pop"
+                  data-toggle="popover"
+                  data-content="The <strong>route_type</strong> field describes the type of
+                  transportation used on a route. Valid values for this field are:
+                  <ul>
+                    <li><strong>0</strong> - Tram, Streetcar, Light rail. Any light rail
+                    or street level system within a metropolitan area. </li>
+                    <li><strong>1</strong> - Subway, Metro. Any underground rail system
+                    within a metropolitan area. </li>
+                    <li><strong>2</strong> - Rail. Used for intercity or long-distance
+                    travel. </li>
+                    <li><strong>3</strong> - Bus. Used for short- and long-distance bus
+                    routes. </li>
+                    <li><strong>4</strong> - Ferry. Used for short- and long-distance
+                    boat service. </li>
+                    <li><strong>5</strong> - Cable car. Used for street-level cable cars
+                    where the cable runs beneath the car. </li>
+                    <li><strong>6</strong> - Gondola, Suspended cable car. Typically used
+                      for aerial cable cars where the car is suspended from the
+                    cable. </li>
+                    <li><strong>7</strong> - Funicular. Any rail system designed for
+                    steep inclines. </li>
+                  </ul>
+                  <p>See a Google Maps screenshot highlighting
+                  the <strong><a href='/transit/gtfs/examples/display-to-users#RouteType'>route_type</a></strong>.</p>
+                </td>">
+                Type:
+              </div>
+              <select class="value" ng-disabled="editing == false" ng-model="active_item.route_type" >
+                <option ng-repeat="type in route_types" value="{{type.value}}">{{ type.label }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="item-group">
+            <div class="title">Optional fields</div>
+            <div class="item">
+              <div class="key pop"
+                data-toggle="popover"
+                data-content="The <strong>agency_id</strong> field defines an agency for the
+                specified route. This value is referenced from
+                the <a href='#agency_fields'>agency.txt</a> file. Use this field when
+                you are providing data for routes from more than one agency.">
+                Agency:
+              </div>
+              <select class="value" ng-disabled="editing == false" ng-model="active_item.agency_id" ng-options="agency.agency_id as agency.agency_name for agency in agencies">
+          </select> 
+            </div>
+            <div class="item">
+              <div class="key pop"
+                data-toggle="popover"
+                data-content="The <strong>route_desc</strong> field contains a description of a
+                route. Please provide useful, quality information. Do not simply
+                duplicate the name of the route. For example, 'A trains operate
+                between Inwood-207 St, Manhattan and Far Rockaway-Mott Avenue, Queens
+                at all times. Also from about 6AM until about midnight, additional A
+                trains operate between Inwood-207 St and Lefferts Boulevard (trains
+                typically alternate between Lefferts Blvd and Far
+                Rockaway).'">
+                Description:
+              </div>
+              <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.route_desc" value="route_desc" />
+            </div>
+            <div class="item">
+              <div class="key pop"
+                data-toggle="popover"
+                data-content="The <strong>route_url</strong> field contains the URL of a web page
+                about that particular route. This should be different from
+                the <strong>agency_url</strong>.<br>  <br> The value must be a
+                fully qualified URL that includes <strong>http://</strong>
+                or <strong>https://</strong>, and any special characters in the URL
+                must be correctly
+                escaped. See <a href='http://www.w3.org/Addressing/URL/4_URI_Recommentations.html'>http://www.w3.org/Addressing/URL/4_URI_Recommentations.html</a>
+                for a description of how to create fully qualified URL values.">
+                Route URL:
+              </div>
+              <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.route_url" value="route_url"  />
+            </div>
+            <div class="item">
+              <div class="key pop"
+                data-toggle="popover"
+                data-content="In systems that have colors assigned to routes,
+                the <strong>route_color</strong> field defines a color that
+                corresponds to a route. The color must be provided as a six-character
+                hexadecimal number, for example, 00FFFF. If no color is specified,
+                the default route color is white (FFFFFF).<p>The color difference between <strong>route_color</strong>
+                and <strong>route_text_color</strong> should provide sufficient
+                contrast when viewed on a black and white
+                screen. The <a href='http://www.w3.org/TR/AERT#color-contrast'>W3C
+                Techniques for Accessibility Evaluation And Repair Tools document</a>
+                offers a useful algorithm for evaluating color contrast. There are
+                also helpful online tools for choosing contrasting colors, including
+                the <a href='http://snook.ca/technical/colour_contrast/colour.html'>snook.ca
+                Color Contrast Check application</a>.">
+                Line color:
+              </div>
+              <input type="text" colorpicker class="value" ng-disabled="editing == false" ng-model="active_item.route_color" value="route_color" format="route_color" style="background:{{active_item.route_color || '#fff'}}; color:{{active_item.route_text_color || '#000'}}" />
+            </div>
+            <div class="item">
+              <div class="key pop"
+                data-toggle="popover"
+                data-content="The <strong>route_text_color</strong> field can be used to specify a
+                legible color to use for text drawn against a background
+                of <strong>route_color</strong>. The color must be provided as a
+                six-character hexadecimal number, for example, FFD700. If no color is
+                specified, the default text color is black (000000).<p>The color difference between <strong>route_color</strong>
+                and <strong>route_text_color</strong> should provide sufficient
+                contrast when viewed on a black and white screen.">
+                Text color:
+              </div>
+              <input type="text" colorpicker class="value" ng-disabled="editing == false" ng-model="active_item.route_text_color" value="route_text_color" style="background:{{active_item.route_color || 'fff'}}; color:{{active_item.route_text_color || '000'}}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Trip item selected -->
+    <div ng-if="active_trip_item != null" class="trip_detail">
+      <div class="actions">
+        
+        <span class="glyphicon glyphicon-pencil tip" id="editBtn" ng-if="editing == false" ng-click="editingStart()" tooltip="Edit this this item"></span>
+        
+        <span class="glyphicon glyphicon-trash tip" id="removeBtn" ng-if="editing == false" ng-click="removeTrip(active_trip_item)" tooltip="Remove this item"></span>
+
+        <span class="glyphicon glyphicon-tags tip" id="copyBtn" ng-if="editing == false" ng-click="copyTrip()" tooltip="Copy this item"></span>
+        
+        <span class="glyphicon glyphicon-remove tip" id="removeBtn" ng-if="editing == true" ng-click="editingStop()" tooltip="Discard changes"></span>
+        
+        <span class="glyphicon glyphicon-ok tip active" id="saveBtn" ng-if="editing == true" ng-click="saveTrip(active_trip_item)" tooltip="Save item"></span>
+      </div>
+      <input type="text" class="title" ng-disabled="editing == false" ng-model="active_trip_item.trip_headsign" value="trip_headsign" />
+      <div class="item-details" ng-if="active_trip_item != null">
+        <div class="item-group">
+          <div class="title">Required fields</div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>trip_id</strong> field contains an ID that identifies a
+              trip. The <strong>trip_id</strong> is dataset unique.">
+              Trip ID:
+            </div>
+            <input type="text" class="value" ng-required disabled ng-model="active_trip_item.trip_id" value="active_trip_item.trip_id" />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>route_id</strong> field is an ID that uniquely
+              identifies a transit route. A transit feed may represent data from
+              more than one route. The <strong>route_id</strong> is dataset
+              unique. This field is optional for transit feeds that only contain
+              data for a single route.">
+              Route:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_trip_item.route_id" ng-options="obj.route_id as obj.route_long_name for obj in routes">
+            </select>
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>service_id</strong> contains an ID that uniquely
+              identifies a set of dates when service is available for one or more
+              routes.  This value is referenced from
+              the <a href='#calendar_fields'>calendar.txt</a>
+              or <a href='#calendar_dates_fields'>calendar_dates.txt</a> file.">
+              Service id:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-options="calendar.service_id as calendar.service_id for calendar in calendars" ng-model="active_trip_item.service_id"> 
+              <option value="">-- Select Service ID --</option>
+            </select>
+          </div>
+        </div>
+        <div class="item-group">
+          <div class="title">Optional fields</div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>trip_short_name</strong> field contains the text that
+              appears in schedules and sign boards to identify the trip to
+              passengers, for example, to identify train numbers for commuter rail
+              trips. If riders do not commonly rely on trip names, please leave
+              this field blank.
+              <p>A <strong>trip_short_name</strong> value, if provided, should
+              uniquely identify a trip within a service day; it should not be used
+              for destination names or limited/express designations.">
+              Trip short name:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_trip_item.trip_short_name" value="trip_short_name"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>direction_id</strong> field contains a binary value that
+              indicates the direction of travel for a trip. Use this field to
+              distinguish between bi-directional trips with the
+              same <a href='#trips_route_id_field'>route_id</a>. This field is not
+              used in routing; it provides a way to separate trips by direction
+              when publishing time tables. You can specify names for each direction
+              with the<strong> trip_headsign</strong> field.</p>
+              <ul>
+                <li><strong>0</strong> - travel in one direction (e.g. outbound
+                travel) </li>
+                <li><strong>1</strong> - travel in the opposite direction
+                (e.g. inbound travel)</li>
+              </ul>
+              <p>For example, you could use the trip_headsign and direction_id fields
+              together to assign a name to travel in each direction for a set of
+              trips.  A trips.txt file could contain these rows for use in time
+              tables:</p>
+              <p>
+              <code>trip_id,...,trip_headsign,direction_id<br>
+              1234,...,to Airport,0<br>
+              1505,...,to Downtown,1</code>">
+              Direction id:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_trip_item.direction_id" >
+              <option value="0">Outbound</option>
+              <option value="1">Inbound</option>
+            </select>
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>block_id</strong> field identifies the block to which
+              the trip belongs. A block consists of two or more sequential trips
+              made using the same vehicle, where a passenger can transfer from one
+              trip to the next just by staying in the
+              vehicle. The <strong>block_id</strong> must be referenced by two or
+              more trips in trips.txt.">
+              Block id:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_trip_item.block_id" value="block_id"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>shape_id</strong> field contains an ID that defines a
+              shape for the trip.  This value is referenced from
+              the <a href='#shapes_fields'>shapes.txt</a> file. The shapes.txt file
+              allows you to define how a line should be drawn on the map to
+              represent a trip.">
+              Shape id:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_trip_item.shape_id" value="shape_id"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="<ul>
+                <li><strong>0</strong> (or empty) - indicates that there is no
+                accessibility information for the trip</li>
+                <li><strong>1</strong> - indicates that the vehicle being used on
+                  this particular trip can accommodate at least one rider in a
+                wheelchair</li>
+                <li><strong>2</strong> - indicates that no riders in wheelchairs can
+                be accommodated on this trip</li>
+              </ul>">
+              Wheelchairs:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_trip_item.wheelchair_accessible">
+              <option value="0">No accessibility information</option>
+              <option value="1">At least some vehicles at this stop can board wheelchairs</option>
+              <option value="2">Wheelchair boarding is not possible at this stop</option>
+            </select>
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="<ul>
+                <li><strong>0</strong> (or empty) - indicates that there is no
+                bike information for the trip</li>
+                <li><strong>1</strong> - indicates that the vehicle being used on
+                this particular trip can accommodate at least one bicycle</li>
+                <li><strong>2</strong> - indicates that no bicycles are allowed on
+                this trip</li>
+              </ul>">
+              Bikes allowed:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_trip_item.bikes_allowed">
+              <option value="0">No bike information for this trip</option>
+              <option value="1">The vehicle being used on this particular trip can accommodate at least one bicycle</option>
+              <option value="2">No bicycles are allowed on this trip</option>
+            </select>
+          </div>
+        </div>
+        <div class="item-group">
+          <div class="title">Stop times</div>
+          <div class="subcat-actions">
+            <span
+            class="glyphicon glyphicon-map-marker action tip"
+            data-toggle="tooltip"
+            data-placement="top"
+            title=""
+            data-original-title="Show/Hide Map with stops"
+            ng-click="stopTimesMapButtonClicked()">
+            </span>
+            <span
+            class="glyphicon glyphicon-refresh action tip"
+            data-toggle="tooltip"
+            data-placement="top"
+            title=""
+            data-original-title="Update times according to google maps"
+            ng-click="updateTimesButtonClicked()">
+            </span>
+            <span class="loading" ng-show="!stoptimesForTrip"></span>
+          </div>
+          <div id="stopTimesMap" class="map" ng-show="showStopTimesMap">Map</div>
+          <div class="item stop_times">
+            <!-- Stop times list -->
+            <ul
+              ui-sortable="sortableOptions"
+              ng-model="stoptimesForTrip"
+              class="sortableList"
+              ng-class="{activeSortable:editing}">
+              <li id="{{ stoptime.stop_id }}"
+                class="stoptimeItem"
+                ng-repeat="stoptime in stoptimesForTrip">
+                <!-- | orderBy: natural('stop_sequence'): false -->
+                <div class="left">
+                  <div class="seq" id="{{ $index + 1 }}">{{ $index + 1 }}</div>
+                </div>
+                <div class="left">
+                  <div class="name">
+                    <select
+                      ng-disabled="editing == false"
+                      ng-model="stoptime.stop_id"
+                      ng-options="obj.stop_id as obj.stop_name for obj in stops">
+                    </select>
+                  </div>
+                  <div class="id">
+                    {{ stoptime.stop_id }}
+                  </div>
+                </div>
+                <div class="right">
+                  
+                  <table>
+                    <tr>
+                      <th>Arrival: </th>
+                      <td>
+                        <input type="text" class="input-small" ui-mask="99:99:99" model-view-value="true" ng-disabled="!editing" ng-model="stoptime.arrival_time" />
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Departure: </th>
+                      <td>
+                        <input type="text" class="input-small" ui-mask="99:99:99" model-view-value="true" ng-disabled="!editing" ng-model="stoptime.departure_time" />
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </li>
+            </ul>
+            <!-- End of Stop times list -->
+            <div class="addnew" ng-click="newStopTimeButtonClicked()">
+              <span class="glyphicon glyphicon-plus"></span> Add new stop sequence
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

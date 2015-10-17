@@ -1,0 +1,136 @@
+<div class="controller" ng-controller="agenciesPageController">
+  <div class="col-md-5 list">
+    <div class="results-actions">
+      <div class="sorting">
+        <button type="button" class="btn" ng-class="{active:sorting=='+agency_name'}" ng-click="sorting='+agency_name'">
+        <span class="glyphicon glyphicon-sort-by-alphabet"></span> Asc
+        </button>
+        <button type="button" class="btn" ng-class="{active:sorting=='-agency_name'}"  ng-click="sorting='-agency_name'">
+        <span class="glyphicon glyphicon-sort-by-alphabet-alt"></span> Dsc
+        </button>
+        
+      </div>
+      <div class="item-buttons">
+        <button type="button" class="btn" ng-click="removeEntries()" ng-if="checkedItems.length > 0">
+        <span class="glyphicon glyphicon-trash"></span> Remove
+        </button>
+        <button type="button" class="btn" ng-click="newEntry()">
+        <span class="glyphicon glyphicon-plus"></span> Add
+        </button>
+      </div>
+    </div>
+    <div class="search">
+      <span class="glyphicon glyphicon-search"></span><input ng-model="searchText.agency_name" placeholder="Search"><span ng-if="searchText.agency_name" ng-click="searchText.agency_name = ''" class="glyphicon glyphicon-remove"></span>
+    </div>
+    <ul class="item-list" when-scrolled='loadMore()'>
+      <li ng-repeat="agency in agencies | filter:searchText | orderBy:sorting | limitTo:limit"
+        ng-class="{'active': agency == active_item}">
+        <div class="controls">
+          <input type="checkbox" id="{{ agency.agency_id }}" class="large" ng-model="selected" ng-init="" ng-change="itemChecked(selected, agency)" />
+        </div>
+        <div class="labels" ng-click="listItemPressed(agency)">
+          <div class="itemName">{{agency.agency_name}}</div>
+          <div class="itemDescription">{{agency.agency_id}}</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-7 col-md-7 item-panel"  ng-class="{'idle': active_item == null}">
+    <div ng-if="active_item !== 'undefined' && active_item.agency_id != null">
+      <div class="actions">
+        <span class="glyphicon glyphicon-pencil tip" id="editBtn" ng-if="editing == false" ng-click="editingStart()" data-toggle="tooltip" data-placement="left" title="Edit this this item"></span>
+        <span class="glyphicon glyphicon-trash tip" id="removeBtn" ng-if="editing == false" ng-click="removeItem()" data-toggle="tooltip" data-placement="left" title="Remove this item"></span>
+        <span class="glyphicon glyphicon-remove tip" id="removeBtn" ng-if="editing == true" ng-click="editingStop()" data-toggle="tooltip" data-placement="left" title="Discard changes"></span>
+        <span class="glyphicon glyphicon-ok tip active" id="saveBtn" ng-if="editing == true" ng-click="saveItem()" data-toggle="tooltip" data-placement="left" title="Save item"></span>
+      </div>
+      <input type="text" class="title" ng-disabled="editing == false" ng-model="active_item.agency_name" value="agency_name" />
+      <div class="item-details" ng-if="active_item != null">
+        <div class="item-group">
+          <div class="title">Required fields</div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>agency_id</strong> field is an ID that uniquely
+              identifies a transit agency. A transit feed may represent data from
+              more than one agency. The <strong>agency_id</strong> is dataset
+              unique. This field is optional for transit feeds that only contain
+              data for a single agency.">
+              Agency ID:
+            </div>
+            <input type="text" class="value" ng-required disabled ng-model="active_item.agency_id" value="agency_id" />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>agency_url</strong> field contains the URL of the
+              transit agency. The value must be a fully qualified URL that
+              includes <strong>http://</strong> or <strong>https://</strong>, and
+              any special characters in the URL must be correctly
+              escaped. See <a href='http://www.w3.org/Addressing/URL/4_URI_Recommentations.html'>http://www.w3.org/Addressing/URL/4_URI_Recommentations.html</a>
+              for a description of how to create fully qualified URL values.">
+              agency_url:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.agency_url" value="agency_url"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <b>agency_id field</b> contains an ID that uniquely identifies a agency or station. Multiple routes may use the same agency. The agency_id is dataset unique.">
+              Agency timezone:
+            </div>
+            <select class="value" ng-disabled="editing == false" ng-model="active_item.agency_timezone" ng-options="timezone.value as timezone.value for timezone in timezones" >
+              <option value="">-- Choose Timezone --</option>
+            </select>
+          </div>
+        </div>
+        <div class="item-group">
+          <div class="title">Optional fields</div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>agency_lang</strong> field contains a two-letter ISO
+              639-1 code for the primary language used by this transit agency. The
+              language code is case-insensitive (both en and EN are accepted). This
+              setting defines capitalization rules and other language-specific
+              settings for all text contained in this transit agency's feed.
+              Please refer
+              to <a href='http://www.loc.gov/standards/iso639-2/php/code_list.php' title='the ISO 639-2 code
+              list'>http://www.loc.gov/standards/iso639-2/php/code_list.php</a> for
+              a list of valid values.">
+              Language:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.agency_lang" value="agency_lang"  />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>agency_phone</strong> field
+              contains a single voice telephone number for the specified agency.
+              This field is a string value that presents the telephone number as
+              typical for the agency's service area.  It can and should contain
+              punctuation marks to group the digits of the number. Dialable text
+              (for example, TriMet's '503-238-RIDE') is permitted, but
+              the field must not contain any other descriptive text.">
+              Phone:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.agency_phone" value="agency_phone" />
+          </div>
+          <div class="item">
+            <div class="key pop"
+              data-toggle="popover"
+              data-content="The <strong>agency_fare_url</strong> specifies the URL of a web page
+              that allows a rider to purchase tickets or other fare instruments for
+              that agency online.  The value must be a fully qualified URL that
+              includes <strong>http://</strong> or <strong>https://</strong>, and
+              any special characters in the URL must be correctly
+              escaped. See <a href='http://www.w3.org/Addressing/URL/4_URI_Recommentations.html'>http://www.w3.org/Addressing/URL/4_URI_Recommentations.html</a>
+              for a description of how to create fully qualified URL values.">
+              Fares URL:
+            </div>
+            <input type="text" class="value" ng-disabled="editing == false" ng-model="active_item.agency_fare_url" value="agency_fare_url"  />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
