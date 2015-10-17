@@ -6,7 +6,6 @@
 - [Stops map](https://vimeo.com/99912285)
 - [Stops](https://vimeo.com/99912287)
 
-- 
 
 ## Requirements
 - Homebrew (http://brew.sh/)
