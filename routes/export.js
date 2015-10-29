@@ -4,7 +4,7 @@ var router = express.Router();
 var mongoDbConnection = require('../lib/db.js');
 var path = require('path');
 var AdmZip = require('adm-zip');
-var downloadsDir = __dirname + "/../public/downloads/";
+var downloadsDir = path.join(__dirname, '../public/downloads/');
 var async = require('async');
 var stringify = require('csv-stringify');
 
@@ -12,7 +12,7 @@ var isAuthenticated = function(req, res, next) {
     if (req.isAuthenticated())
         return next();
     res.redirect('/login');
-}
+};
 
 router.get('/', isAuthenticated, function(req, res) {
     console.log("Exporting GTFS");
@@ -43,6 +43,7 @@ router.get('/', isAuthenticated, function(req, res) {
                             header: true
                         }, function(err, fileContents) {
                             if (err) {
+                                console.log('A');
                                 console.log(err);
                             }
                             //Add contents to file
