@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var error = require('./routes/error');
-var passport = require('passport')
+var passport = require('passport');
 var expressSession = require('express-session');
 var flash = require('connect-flash');
 var initPassport = require('./lib/passport/init');
@@ -41,6 +41,7 @@ app.use(require('less-middleware')({
     src: path.join(__dirname, 'public')
 }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/bower_components',  express.static( path.join(__dirname, '/bower_components')));
 
 app.use(expressSession({
     secret: 'gtfs',
@@ -56,7 +57,7 @@ var isAuthenticated = function (req, res, next) {
     if (req.isAuthenticated())
         return next();
     res.redirect('/login');
-}
+};
 
 app.use('/', routes);
 app.use('/error', error);

@@ -16,7 +16,7 @@ var isAuthenticated = function (req, res, next) {
     if (req.isAuthenticated())
         return next();
     res.redirect('/login');
-}
+};
 
 router.post('/', isAuthenticated, function(req, res, next) {
   importingError = false;
@@ -26,9 +26,9 @@ router.post('/', isAuthenticated, function(req, res, next) {
     fs.copy(files.file.path, newPath, function (error) {
       if(error) {
         throw error;
-        res.send(500, { error: error });
+        //res.send(500, { error: error });
       } else {
-        tempFilePath = files.file.path; 
+        tempFilePath = files.file.path;
         res.send(200);
         async.series([
             unzipFile,
@@ -68,14 +68,14 @@ function removeDatabase(callback, result) {
             if(error){
               console.log(error);
               cb(error, false);
-            } else { 
+            } else {
               cb(null, true);
             }
           });
         });
     }, function(error){
-      if(error) { 
-        console.log(error); 
+      if(error) {
+        console.log(error);
         callback(error, false);
       } else {
         console.log("--> Finished removing old db");
@@ -85,7 +85,7 @@ function removeDatabase(callback, result) {
   });
 }
 
-function importFiles(callback, result) { 
+function importFiles(callback, result) {
   mongoDbConnection(function(pdb) {
    async.forEach(GTFSFiles, function(GTFSFile, cb){
      if(GTFSFile){
@@ -96,7 +96,7 @@ function importFiles(callback, result) {
         .on('record', function(line, index){
           pdb.collection(GTFSFile.collection, function(error, collection){
             collection.insert(line, {continueOnError:true}, function(error, inserted) {
-               if(error) { 
+               if(error) {
                 console.log(error);
               }
             });
@@ -115,7 +115,7 @@ function importFiles(callback, result) {
       if(error){
         callback(error, false);
       } else {
-        callback(null, true);  
+        callback(null, true);
         console.log("--> Importing completed");
       }
     });
@@ -136,7 +136,7 @@ function removeUploads(callback, result){
       if(error){
         callback(error, false);
       } else {
-        console.log("--> Removing files completed");  
+        console.log("--> Removing files completed");
         callback(null, true);
       }
     });
